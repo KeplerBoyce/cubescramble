@@ -1,6 +1,5 @@
 # cubescramble
-Random state + random move Rubik's Cube scrambler library
-None are working yet; 3x3 Kociemba algorithm is a work in progress
+Random state + random move Rubik's Cube scrambler library. None are working yet; 3x3 Kociemba algorithm is a work in progress.
 
 As per WCA regulations, uses random state scrambles for:
 * 3x3
