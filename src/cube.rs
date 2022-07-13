@@ -33,7 +33,7 @@ pub enum Move {
 //type for layers
 #[derive(Copy, Clone, PartialEq)]
 pub struct Cube3x3 {
-    stickers: [Color; 54], //F, R, U, B, L, D; left to right, bottom to top on each face
+    stickers: [Color; 54], //F, R, U, B, L, D; rows from left to right, bottom to top on each face
 }
 //functions for making a cube, turning, and checking if it is solved
 impl Cube3x3 {
@@ -49,12 +49,6 @@ impl Cube3x3 {
                 Color::Y, Color::Y, Color::Y, Color::Y, Color::Y, Color::Y, Color::Y, Color::Y, Color::Y,
             ]
         };
-    }
-    //print color of every sticker in order (for debugging)
-    pub fn print_colors(self) {
-        for (i, x) in self.stickers.iter().enumerate() {
-            println!("{} {:?}", i, x);
-        }
     }
     //cycles 4 stickers and returns a new Cube3x3
     fn cycle(mut self, points: [usize; 4]) -> Cube3x3 {
@@ -98,15 +92,6 @@ impl Cube3x3 {
     }
     //function to check if the cube is solved
     pub fn check(self) -> bool {
-        // let colors: [Color; 6] = [Color::G, Color::R, Color::W, Color::B, Color::O, Color::Y];
-        // for i in 0..6 {
-        //     for j in 0..9 {
-        //         if self.stickers[i * 9 + j] != colors[i] {
-        //             return false;
-        //         }
-        //     }
-        // }
-        // return true;
         return self == Self::new();
     }
 }
