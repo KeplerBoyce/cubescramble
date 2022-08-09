@@ -105,13 +105,21 @@ impl Cube3x3 {
 
     //check if the cube is in G1 (domino) state
     pub fn check_g1(self) -> bool {
-        //make sure U and D faces are only white and yellow
-        for x in vec![18, 19, 20, 21, 22, 23, 24, 25, 26, 45, 46, 47, 48, 49, 50, 51, 52, 53].into_iter() {
-            if self.stickers[x] != Color::W && self.stickers[x] != Color::Y {
+        //make sure all pieces are oriented and U and D faces are only white and yellow
+        for x in self.corners {
+            if x >= 8 {
                 return false;
             }
         }
-        //if the above is true, the E slice edges are already in the proper state; no need to check
+        for (i, x) in self.edges.iter().enumerate() {
+            if x >= &12 {
+                return false;
+            }
+            if i >= 8 && x < &8 { //check that E slice edges are in E slice
+                return false;
+            }
+        }
+        //if the above are true, the E slice edges are already in the proper state; no need to check
         return true;
     }
 
