@@ -152,8 +152,8 @@ impl Cube3x3 {
                 let temp = self.corners[i];
                 self.corners[i] = self.corners[target];
                 self.corners[target] = temp;
-                self.corners[i] = (self.corners[i] + 8 * rotation) & 24; //rotate in opposite directions
-                self.corners[target] = (self.corners[target] + 16 * rotation) & 24;
+                self.corners[i] = (self.corners[i] + 8 * rotation) % 24; //rotate in opposite directions
+                self.corners[target] = (self.corners[target] + 16 * rotation) % 24;
                 swaps += 1;
             }
         }
@@ -167,8 +167,8 @@ impl Cube3x3 {
                 let temp = self.edges[i];
                 self.edges[i] = self.edges[target];
                 self.edges[target] = temp;
-                self.edges[i] = (self.edges[i] + 12 * rotation) & 24;
-                self.edges[target] = (self.edges[target] + 12 * rotation) & 24;
+                self.edges[i] = (self.edges[i] + 12 * rotation) % 24;
+                self.edges[target] = (self.edges[target] + 12 * rotation) % 24;
                 swaps += 1;
             }
         }
