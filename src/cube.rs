@@ -56,6 +56,7 @@ impl Cube3x3 {
 
     //print edges and corners for debugging
     pub fn print_pieces(&self) {
+        println!("--- Printing pieces ---");
         for (i, e) in self.edges.iter().enumerate() {
             println!("Edge {}: {}", i, e);
         }
