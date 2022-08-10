@@ -1,4 +1,5 @@
-#[allow(non_camel_case_types)]
+#![allow(non_camel_case_types)]
+#![allow(dead_code)]
 use rand::Rng;
 
 //color possibilities of a sticker
@@ -53,58 +54,71 @@ impl Cube3x3 {
         };
     }
 
-    //applies a move and returns a new Cube3x3
-    pub fn turn(mut self, m: Move) -> Cube3x3 {
-        let e = self.edges;
-        let c = self.corners;
-        match m {
-            Move::F => {self.edges = [e[0], e[1], e[2], (e[8] + 12) % 24, e[4], (e[9] + 12) % 24, e[6], e[7], (e[5] + 12) % 24, (e[3] + 12) % 24, e[10], e[11]];
-                        self.corners = [(c[4] + 8) % 24, c[1], c[2], (c[0] + 16) % 24, (c[5] + 16) % 24, (c[3] + 8) % 24, c[6], c[7]]},
-            Move::R => {self.edges = [e[0], e[1], e[9], e[3], e[4], e[5], e[11], e[7], e[8], e[6], e[10], e[2]];
-                        self.corners = [c[0], c[1], (c[3] + 16) % 24, (c[5] + 8) % 24, c[4], (c[6] + 16) % 24, (c[2] + 8) % 24, c[7]]},
-            Move::U => {self.edges = [e[3], e[0], e[1], e[2], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11]];
-                        self.corners = [c[3], c[0], c[1], c[2], c[4], c[5], c[6], c[7]]},
-            Move::B => {self.edges = [e[0], (e[11] + 12) % 24, e[2], e[3], e[4], e[5], e[6], (e[10] + 12) % 24, e[8], e[9], (e[1] + 12) % 24, (e[7] + 12) % 24];
-                        self.corners = [c[0], (c[2] + 16) % 24, (c[6] + 8) % 24, c[3], c[4], c[5], (c[7] + 16) % 24, (c[1] + 8) % 24]},
-            Move::L => {self.edges = [e[10], e[1], e[2], e[3], e[8], e[5], e[6], e[7], e[0], e[9], e[4], e[11]];
-                        self.corners = [(c[1] + 16) % 24, (c[7] + 8) % 24, c[2], c[3], (c[0] + 8) % 24, c[5], c[6], (c[4] + 16) % 24]},
-            Move::D => {self.edges = [e[0], e[1], e[2], e[3], e[7], e[4], e[5], e[6], e[8], e[9], e[10], e[11]];
-                         self.corners = [c[0], c[1], c[2], c[3], c[7], c[4], c[5], c[6]]},
-            Move::Fi => {self.edges = [e[0], e[1], e[2], (e[9] + 12) % 24, e[4], (e[8] + 12) % 24, e[6], e[7], (e[3] + 12) % 24, (e[5] + 12) % 24, e[10], e[11]];
-                         self.corners = [(c[3] + 8) % 24, c[1], c[2], (c[5] + 16) % 24, (c[0] + 16) % 24, (c[4] + 8) % 24, c[6], c[7]]},
-            Move::Ri => {self.edges = [e[0], e[1], e[11], e[3], e[4], e[5], e[9], e[7], e[8], e[2], e[10], e[6]];
-                         self.corners = [c[0], c[1], (c[6] + 16) % 24, (c[2] + 8) % 24, c[4], (c[3] + 16) % 24, (c[5] + 8) % 24, c[7]]},
-            Move::Ui => {self.edges = [e[1], e[2], e[3], e[0], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11]];
-                         self.corners = [c[1], c[2], c[3], c[0], c[4], c[5], c[6], c[7]]},
-            Move::Bi => {self.edges = [e[0], (e[10] + 12) % 24, e[2], e[3], e[4], e[5], e[6], (e[11] + 12) % 24, e[8], e[9], (e[7] + 12) % 24, (e[1] + 12) % 24];
-                         self.corners = [c[0], (c[7] + 16) % 24, (c[1] + 8) % 24, c[3], c[4], c[5], (c[2] + 16) % 24, (c[6] + 8) % 24]},
-            Move::Li => {self.edges = [e[8], e[1], e[2], e[3], e[10], e[5], e[6], e[7], e[4], e[9], e[0], e[11]];
-                         self.corners = [(c[4] + 16) % 24, (c[0] + 8) % 24, c[2], c[3], (c[7] + 8) % 24, c[5], c[6], (c[1] + 16) % 24]},
-            Move::Di => {self.edges = [e[0], e[1], e[2], e[3], e[5], e[6], e[7], e[4], e[8], e[9], e[10], e[11]];
-                         self.corners = [c[0], c[1], c[2], c[3], c[5], c[6], c[7], c[4]]},
-            Move::F2 => {self.edges = [e[0], e[1], e[2], e[5], e[4], e[3], e[6], e[7], e[9], e[8], e[10], e[11]];
-                         self.corners = [c[5], c[1], c[2], c[4], c[3], c[0], c[6], c[7]]},
-            Move::R2 => {self.edges = [e[0], e[1], e[6], e[3], e[4], e[5], e[2], e[7], e[8], e[11], e[10], e[9]];
-                         self.corners = [c[0], c[1], c[5], c[6], c[4], c[2], c[3], c[7]]},
-            Move::U2 => {self.edges = [e[2], e[3], e[0], e[1], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11]];
-                         self.corners = [c[2], c[3], c[0], c[1], c[4], c[5], c[6], c[7]]},
-            Move::B2 => {self.edges = [e[0], e[7], e[2], e[3], e[4], e[5], e[6], e[1], e[8], e[9], e[11], e[10]];
-                         self.corners = [c[0], c[6], c[7], c[3], c[4], c[5], c[1], c[2]]},
-            Move::L2 => {self.edges = [e[4], e[1], e[2], e[3], e[0], e[5], e[6], e[7], e[10], e[9], e[8], e[11]];
-                         self.corners = [c[7], c[4], c[2], c[3], c[1], c[5], c[6], c[0]]},
-            Move::D2 => {self.edges = [e[0], e[1], e[2], e[3], e[6], e[7], e[4], e[5], e[8], e[9], e[10], e[11]];
-                         self.corners = [c[0], c[1], c[2], c[3], c[6], c[7], c[4], c[5]]},
+    //print edges and corners for debugging
+    pub fn print_pieces(&self) {
+        for (i, e) in self.edges.iter().enumerate() {
+            println!("Edge {}: {}", i, e);
         }
-        return self;
+        for (i, c) in self.corners.iter().enumerate() {
+            println!("Corner {}: {}", i, c);
+        }
+    }
+
+    //applies a move and returns a new Cube3x3
+    pub fn turn(&self, m: Move) -> Cube3x3 {
+        let mut e = self.edges;
+        let mut c = self.corners;
+        match m {
+            Move::F => {e = [e[0], e[1], e[2], (e[8] + 12) % 24, e[4], (e[9] + 12) % 24, e[6], e[7], (e[5] + 12) % 24, (e[3] + 12) % 24, e[10], e[11]];
+                        c = [(c[4] + 8) % 24, c[1], c[2], (c[0] + 16) % 24, (c[5] + 16) % 24, (c[3] + 8) % 24, c[6], c[7]]},
+            Move::R => {e = [e[0], e[1], e[9], e[3], e[4], e[5], e[11], e[7], e[8], e[6], e[10], e[2]];
+                        c = [c[0], c[1], (c[3] + 16) % 24, (c[5] + 8) % 24, c[4], (c[6] + 16) % 24, (c[2] + 8) % 24, c[7]]},
+            Move::U => {e = [e[3], e[0], e[1], e[2], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11]];
+                        c = [c[3], c[0], c[1], c[2], c[4], c[5], c[6], c[7]]},
+            Move::B => {e = [e[0], (e[11] + 12) % 24, e[2], e[3], e[4], e[5], e[6], (e[10] + 12) % 24, e[8], e[9], (e[1] + 12) % 24, (e[7] + 12) % 24];
+                        c = [c[0], (c[2] + 16) % 24, (c[6] + 8) % 24, c[3], c[4], c[5], (c[7] + 16) % 24, (c[1] + 8) % 24]},
+            Move::L => {e = [e[10], e[1], e[2], e[3], e[8], e[5], e[6], e[7], e[0], e[9], e[4], e[11]];
+                        c = [(c[1] + 16) % 24, (c[7] + 8) % 24, c[2], c[3], (c[0] + 8) % 24, c[5], c[6], (c[4] + 16) % 24]},
+            Move::D => {e = [e[0], e[1], e[2], e[3], e[7], e[4], e[5], e[6], e[8], e[9], e[10], e[11]];
+                         c = [c[0], c[1], c[2], c[3], c[7], c[4], c[5], c[6]]},
+            Move::Fi => {e = [e[0], e[1], e[2], (e[9] + 12) % 24, e[4], (e[8] + 12) % 24, e[6], e[7], (e[3] + 12) % 24, (e[5] + 12) % 24, e[10], e[11]];
+                         c = [(c[3] + 8) % 24, c[1], c[2], (c[5] + 16) % 24, (c[0] + 16) % 24, (c[4] + 8) % 24, c[6], c[7]]},
+            Move::Ri => {e = [e[0], e[1], e[11], e[3], e[4], e[5], e[9], e[7], e[8], e[2], e[10], e[6]];
+                         c = [c[0], c[1], (c[6] + 16) % 24, (c[2] + 8) % 24, c[4], (c[3] + 16) % 24, (c[5] + 8) % 24, c[7]]},
+            Move::Ui => {e = [e[1], e[2], e[3], e[0], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11]];
+                         c = [c[1], c[2], c[3], c[0], c[4], c[5], c[6], c[7]]},
+            Move::Bi => {e = [e[0], (e[10] + 12) % 24, e[2], e[3], e[4], e[5], e[6], (e[11] + 12) % 24, e[8], e[9], (e[7] + 12) % 24, (e[1] + 12) % 24];
+                         c = [c[0], (c[7] + 16) % 24, (c[1] + 8) % 24, c[3], c[4], c[5], (c[2] + 16) % 24, (c[6] + 8) % 24]},
+            Move::Li => {e = [e[8], e[1], e[2], e[3], e[10], e[5], e[6], e[7], e[4], e[9], e[0], e[11]];
+                         c = [(c[4] + 16) % 24, (c[0] + 8) % 24, c[2], c[3], (c[7] + 8) % 24, c[5], c[6], (c[1] + 16) % 24]},
+            Move::Di => {e = [e[0], e[1], e[2], e[3], e[5], e[6], e[7], e[4], e[8], e[9], e[10], e[11]];
+                         c = [c[0], c[1], c[2], c[3], c[5], c[6], c[7], c[4]]},
+            Move::F2 => {e = [e[0], e[1], e[2], e[5], e[4], e[3], e[6], e[7], e[9], e[8], e[10], e[11]];
+                         c = [c[5], c[1], c[2], c[4], c[3], c[0], c[6], c[7]]},
+            Move::R2 => {e = [e[0], e[1], e[6], e[3], e[4], e[5], e[2], e[7], e[8], e[11], e[10], e[9]];
+                         c = [c[0], c[1], c[5], c[6], c[4], c[2], c[3], c[7]]},
+            Move::U2 => {e = [e[2], e[3], e[0], e[1], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11]];
+                         c = [c[2], c[3], c[0], c[1], c[4], c[5], c[6], c[7]]},
+            Move::B2 => {e = [e[0], e[7], e[2], e[3], e[4], e[5], e[6], e[1], e[8], e[9], e[11], e[10]];
+                         c = [c[0], c[6], c[7], c[3], c[4], c[5], c[1], c[2]]},
+            Move::L2 => {e = [e[4], e[1], e[2], e[3], e[0], e[5], e[6], e[7], e[10], e[9], e[8], e[11]];
+                         c = [c[7], c[4], c[2], c[3], c[1], c[5], c[6], c[0]]},
+            Move::D2 => {e = [e[0], e[1], e[2], e[3], e[6], e[7], e[4], e[5], e[8], e[9], e[10], e[11]];
+                         c = [c[0], c[1], c[2], c[3], c[6], c[7], c[4], c[5]]},
+        }
+        return Cube3x3 {
+            edges: e,
+            corners: c,
+        };
     }
 
     //check if the cube is solved
-    pub fn check(self) -> bool {
-        return self == Self::new();
+    pub fn check(&self) -> bool {
+        return *self == Self::new();
     }
 
     //check if the cube is in G1 (domino) state
-    pub fn check_g1(self) -> bool {
+    pub fn check_g1(&self) -> bool {
         //make sure all pieces are oriented and U and D faces are only white and yellow
         for x in self.corners {
             if x >= 8 {
