@@ -39,8 +39,8 @@ pub enum Move {
 //type for layers
 #[derive(Copy, Clone, PartialEq)]
 pub struct Cube3x3 {
-    edges: [i8; 12], //order: UL clockwise, DL clockwise, FL, FR, BL, BR, +12 if flipped
-    corners: [i8; 8], //order: UFL clockwise, DFL clockwise, +8 for CW twist, +16 for CCW twist
+    edges: [u8; 12], //order: UL clockwise, DL clockwise, FL, FR, BL, BR, +12 if flipped
+    corners: [u8; 8], //order: UFL clockwise, DFL clockwise, +8 for CW twist, +16 for CCW twist
 }
 
 //functions for making a cube, turning, and checking if it is solved
@@ -124,37 +124,38 @@ impl Cube3x3 {
     }
 
     //generate a random cube state
-    pub fn scramble(mut self) -> Cube3x3 {
+    pub fn scramble(&mut self) {
         let mut rng = rand::thread_rng();
-        //locations of corner stickers and edge stickers; faces of corner in clockwise order
-        let corner_locs: [[usize; 3]; 8] = [[0, 51, 38], [2, 9, 53], [6, 44, 18], [8, 20, 15], [27, 47, 11], [29, 36, 45], [33, 17, 26], [35, 24, 42]];
-        let edge_locs: [[usize; 2]; 12] = [[1, 52], [3, 41], [7, 19], [5, 12], [23, 16], [50, 10], [48, 37], [21, 43], [28, 46], [30, 14], [34, 25], [32, 39]];
-        let mut swaps: usize = 0; //make sure number of swaps is even, as otherwise cube is unsolvable
+        let mut swaps: usize = 0;
         
         //perform fisher-yates shuffle on corners
         for i in (1..8).rev() {
             let target: usize = rng.gen_range(0..(i + 1));
-            let rotation: usize = rng.gen_range(0..3); //swap with a random sticker of the target
+            let rotation: u8 = rng.gen_range(0..3); //swap with a random sticker of the target
             //make sure not swapping with self, as this either does nothing or twists corner
             if target != i {
-                self = self.swap([corner_locs[i][0], corner_locs[target][rotation]])
-                    .swap([corner_locs[i][1], corner_locs[target][(1 + rotation) % 3]])
-                    .swap([corner_locs[i][2], corner_locs[target][(2 + rotation) % 3]]);
+                let temp = self.corners[i];
+                self.corners[i] = self.corners[target];
+                self.corners[target] = temp;
+                self.corners[i] = (self.corners[i] + 8 * rotation) & 24; //rotate in opposite directions
+                self.corners[target] = (self.corners[target] + 16 * rotation) & 24;
                 swaps += 1;
             }
         }
-        //perform fisher-yates shuffle on edges
+        //repeat for edges
         for i in (1..12).rev() {
             let target: usize = rng.gen_range(0..(i + 1));
-            let rotation: usize = rng.gen_range(0..2); //swap with a random sticker of the target
+            let rotation: u8 = rng.gen_range(0..2); //swap with a random sticker of the target
             //make sure not swapping with self, as this either does nothing or flips edge
             //skip final swap if it would make total number of swaps odd
             if target != i && !(i == 1 && swaps % 2 == 0) {
-                self = self.swap([edge_locs[i][0], edge_locs[target][rotation]])
-                    .swap([edge_locs[i][1], edge_locs[target][(1 + rotation) % 2]]);
+                let temp = self.edges[i];
+                self.edges[i] = self.edges[target];
+                self.edges[target] = temp;
+                self.edges[i] = (self.edges[i] + 12 * rotation) & 24;
+                self.edges[target] = (self.edges[target] + 12 * rotation) & 24;
                 swaps += 1;
             }
         }
-        return self;
     }
 }
