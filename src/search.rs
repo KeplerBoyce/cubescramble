@@ -21,6 +21,7 @@ pub fn search3x3(cube3x3: Cube3x3) {
     let mut q: Queue<(Cube3x3, Color, Color, Vec<Move>)> = queue![(cube3x3, Color::None, Color::None, Vec::new())];
     while q.size() > 0 {
         let state: (Cube3x3, Color, Color, Vec<Move>) = q.remove().unwrap();
+        println!("{}", state.0.manhattan_dist());
         if state.0.check() {
             print!("Found:");
             for m in state.3.iter().enumerate() {
