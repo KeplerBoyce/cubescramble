@@ -2,7 +2,6 @@
 #![allow(dead_code)]
 use std::collections::VecDeque;
 use std::collections::HashMap;
-use queues::*;
 use crate::cube::*;
 use std::iter;
 
@@ -31,7 +30,7 @@ pub fn search3x3(cube3x3: Cube3x3, depth: usize) {
             for m in moves.iter().enumerate() {
                 print!(" {:?}", m.1);
             }
-            print!("\n");
+            println!();
             return;
         } else if moves.len() == depth {
             continue; //stop this branch if max depth reached
@@ -88,6 +87,7 @@ pub fn gen_lookups_3x3(depth: usize) -> HashMap<Cube3x3, Vec<Move>> {
             deque.push_back((cube3x3.turn(Move::F2), Face::F, last_face, moves.append_move(Move::F2)));
         }
         if last_face != Face::R && !(last_face == Face::L && next_last_face == Face::R) {
+            deque.push_back((cube3x3.turn(Move::R), Face::R, last_face, moves.append_move(Move::R)));
             deque.push_back((cube3x3.turn(Move::Ri), Face::R, last_face, moves.append_move(Move::Ri)));
             deque.push_back((cube3x3.turn(Move::R2), Face::R, last_face, moves.append_move(Move::R2)));
         }
