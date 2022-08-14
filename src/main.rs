@@ -11,5 +11,6 @@ fn main() {
     cube3x3 = cube3x3.turn(Move::Li);
     cube3x3 = cube3x3.turn(Move::R);
     cube3x3 = cube3x3.turn(Move::F2);
-    search3x3(cube3x3, 5);
+    cube3x3 = cube3x3.turn(Move::L2);
+    search3x3(cube3x3, 6);
 }
