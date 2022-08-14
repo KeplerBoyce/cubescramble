@@ -37,6 +37,27 @@ pub enum Move {
     D2, //down 180
 }
 
+impl Move {
+    //fn to invert direction of move
+    pub fn invert(&mut self) {
+        match self {
+            Move::F => {*self = Move::Fi}
+            Move::Fi => {*self = Move::F}
+            Move::R => {*self = Move::Ri}
+            Move::Ri => {*self = Move::R}
+            Move::U => {*self = Move::Ui}
+            Move::Ui => {*self = Move::U}
+            Move::B => {*self = Move::Bi}
+            Move::Bi => {*self = Move::B}
+            Move::L => {*self = Move::Li}
+            Move::Li => {*self = Move::L}
+            Move::D => {*self = Move::Di}
+            Move::Di => {*self = Move::D}
+            _ => {}
+        }
+    }
+}
+
 //type for layers
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Cube3x3 {
