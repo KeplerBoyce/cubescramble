@@ -38,7 +38,7 @@ pub enum Move {
 }
 
 //type for layers
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Cube3x3 {
     edges: [u8; 12], //order: UL clockwise, DL clockwise, FL, FR, BL, BR, +12 if flipped
     corners: [u8; 8], //order: UFL clockwise, DFL clockwise, +8 for CW twist, +16 for CCW twist
