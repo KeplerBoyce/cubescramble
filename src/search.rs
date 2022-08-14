@@ -16,50 +16,54 @@ impl<Move: Clone> Append<Move> for Vec<Move> {
     }
 }
 
-pub fn search3x3(cube3x3: Cube3x3) {
-    //queue of cube state, last color, 2nd last color, and moves so far
-    let mut q: Queue<(Cube3x3, Color, Color, Vec<Move>)> = queue![(cube3x3, Color::None, Color::None, Vec::new())];
-    while q.size() > 0 {
-        let state: (Cube3x3, Color, Color, Vec<Move>) = q.remove().unwrap();
-        println!("{}", state.0.manhattan_dist());
-        if state.0.check() {
+//recursive DFS search
+pub fn search3x3(cube3x3: Cube3x3, depth: usize) {
+    let mut stack: Vec<(Cube3x3, Face, Face, Vec<Move>)> = vec!((cube3x3, Face::None, Face::None, Vec::new()));
+    
+    //run until stack is empty (all nodes within max depth have been checked)
+    while stack.len() > 0 {
+        let (cube3x3, last_face, next_last_face, moves) = stack.pop().unwrap(); //destructure current state
+
+        if cube3x3.check() {
             print!("Found:");
-            for m in state.3.iter().enumerate() {
+            for m in moves.iter().enumerate() {
                 print!(" {:?}", m.1);
             }
             print!("\n");
             return;
+        } else if moves.len() == depth {
+            continue; //stop this branch if max depth reached
         }
-        //make sure we are not doing redundant moves (e.g. L R L2 == Li R)
-        if state.1 != Color::G && !(state.1 == Color::B && state.2 == Color::G) {
-            q.add((state.0.turn(Move::F), Color::G, state.1, state.3.append_move(Move::F)));
-            q.add((state.0.turn(Move::Fi), Color::G, state.1, state.3.append_move(Move::Fi)));
-            q.add((state.0.turn(Move::F2), Color::G, state.1, state.3.append_move(Move::F2)));
+        //push next possible moves to stack
+        if last_face != Face::F && !(last_face == Face::B && next_last_face == Face::F) {
+            stack.push((cube3x3.turn(Move::F), Face::F, last_face, moves.append_move(Move::F)));
+            stack.push((cube3x3.turn(Move::Fi), Face::F, last_face, moves.append_move(Move::Fi)));
+            stack.push((cube3x3.turn(Move::F2), Face::F, last_face, moves.append_move(Move::F2)));
         }
-        if state.1 != Color::R && !(state.1 == Color::O && state.2 == Color::R) {
-            q.add((state.0.turn(Move::R), Color::R, state.1, state.3.append_move(Move::R)));
-            q.add((state.0.turn(Move::Ri), Color::R, state.1, state.3.append_move(Move::Ri)));
-            q.add((state.0.turn(Move::R2), Color::R, state.1, state.3.append_move(Move::R2)));
+        if last_face != Face::R && !(last_face == Face::L && next_last_face == Face::R) {
+            stack.push((cube3x3.turn(Move::R), Face::R, last_face, moves.append_move(Move::R)));
+            stack.push((cube3x3.turn(Move::Ri), Face::R, last_face, moves.append_move(Move::Ri)));
+            stack.push((cube3x3.turn(Move::R2), Face::R, last_face, moves.append_move(Move::R2)));
         }
-        if state.1 != Color::W && !(state.1 == Color::Y && state.2 == Color::W) {
-            q.add((state.0.turn(Move::U), Color::W, state.1, state.3.append_move(Move::U)));
-            q.add((state.0.turn(Move::Ui), Color::W, state.1, state.3.append_move(Move::Ui)));
-            q.add((state.0.turn(Move::U2), Color::W, state.1, state.3.append_move(Move::U2)));
+        if last_face != Face::U && !(last_face == Face::D && next_last_face == Face::U) {
+            stack.push((cube3x3.turn(Move::U), Face::U, last_face, moves.append_move(Move::U)));
+            stack.push((cube3x3.turn(Move::Ui), Face::U, last_face, moves.append_move(Move::Ui)));
+            stack.push((cube3x3.turn(Move::U2), Face::U, last_face, moves.append_move(Move::U2)));
         }
-        if state.1 != Color::B && !(state.1 == Color::G && state.2 == Color::B) {
-            q.add((state.0.turn(Move::B), Color::B, state.1, state.3.append_move(Move::B)));
-            q.add((state.0.turn(Move::Bi), Color::B, state.1, state.3.append_move(Move::Bi)));
-            q.add((state.0.turn(Move::B2), Color::B, state.1, state.3.append_move(Move::B2)));
+        if last_face != Face::B && !(last_face == Face::F && next_last_face == Face::B) {
+            stack.push((cube3x3.turn(Move::B), Face::B, last_face, moves.append_move(Move::B)));
+            stack.push((cube3x3.turn(Move::Bi), Face::B, last_face, moves.append_move(Move::Bi)));
+            stack.push((cube3x3.turn(Move::B2), Face::B, last_face, moves.append_move(Move::B2)));
         }
-        if state.1 != Color::O && !(state.1 == Color::R && state.2 == Color::O) {
-            q.add((state.0.turn(Move::L), Color::O, state.1, state.3.append_move(Move::L)));
-            q.add((state.0.turn(Move::Li), Color::O, state.1, state.3.append_move(Move::Li)));
-            q.add((state.0.turn(Move::L2), Color::O, state.1, state.3.append_move(Move::L2)));
+        if last_face != Face::L && !(last_face == Face::R && next_last_face == Face::L) {
+            stack.push((cube3x3.turn(Move::L), Face::L, last_face, moves.append_move(Move::L)));
+            stack.push((cube3x3.turn(Move::Li), Face::L, last_face, moves.append_move(Move::Li)));
+            stack.push((cube3x3.turn(Move::L2), Face::L, last_face, moves.append_move(Move::L2)));
         }
-        if state.1 != Color::Y && !(state.1 == Color::W && state.2 == Color::Y) {
-            q.add((state.0.turn(Move::D), Color::Y, state.1, state.3.append_move(Move::D)));
-            q.add((state.0.turn(Move::Di), Color::Y, state.1, state.3.append_move(Move::Di)));
-            q.add((state.0.turn(Move::D2), Color::Y, state.1, state.3.append_move(Move::D2)));
+        if last_face != Face::D && !(last_face == Face::U && next_last_face == Face::D) {
+            stack.push((cube3x3.turn(Move::D), Face::D, last_face, moves.append_move(Move::D)));
+            stack.push((cube3x3.turn(Move::Di), Face::D, last_face, moves.append_move(Move::Di)));
+            stack.push((cube3x3.turn(Move::D2), Face::D, last_face, moves.append_move(Move::D2)));
         }
     }
 }

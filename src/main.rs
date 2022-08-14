@@ -9,5 +9,7 @@ fn main() {
     cube3x3 = cube3x3.turn(Move::U);
     cube3x3 = cube3x3.turn(Move::F2);
     cube3x3 = cube3x3.turn(Move::Li);
-    search3x3(cube3x3);
+    cube3x3 = cube3x3.turn(Move::R);
+    cube3x3 = cube3x3.turn(Move::F2);
+    search3x3(cube3x3, 5);
 }

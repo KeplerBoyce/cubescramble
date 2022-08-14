@@ -4,13 +4,13 @@ use rand::Rng;
 
 //color possibilities of a sticker
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub enum Color {
-    G, //green
-    R, //red
-    W, //white
-    B, //blue
-    O, //orange
-    Y, //yellow
+pub enum Face {
+    F,
+    R,
+    U,
+    B,
+    L,
+    D,
     None,
 }
 
