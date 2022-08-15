@@ -58,7 +58,7 @@ impl Move {
     }
 }
 
-//type for layers
+//struct for 3x3 cube
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Cube3x3 {
     edges: [u8; 12], //order: UL clockwise, DL clockwise, FL, FR, BL, BR, +12 if flipped
@@ -73,17 +73,6 @@ impl Cube3x3 {
             edges: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
             corners: [0, 1, 2, 3, 4, 5, 6, 7],
         };
-    }
-
-    //print edges and corners for debugging
-    pub fn print_pieces(&self) {
-        println!("--- Printing pieces ---");
-        for (i, e) in self.edges.iter().enumerate() {
-            println!("Edge {}: {}", i, e);
-        }
-        for (i, c) in self.corners.iter().enumerate() {
-            println!("Corner {}: {}", i, c);
-        }
     }
 
     //applies a move and returns a new Cube3x3
@@ -134,31 +123,6 @@ impl Cube3x3 {
         };
     }
 
-    //check if the cube is solved
-    pub fn check(&self) -> bool {
-        return *self == Self::new();
-    }
-
-    //check if the cube is in G1 (domino) state
-    pub fn check_g1(&self) -> bool {
-        //make sure all pieces are oriented and U and D faces are only white and yellow
-        for x in self.corners {
-            if x >= 8 {
-                return false;
-            }
-        }
-        for (i, x) in self.edges.iter().enumerate() {
-            if x >= &12 {
-                return false;
-            }
-            if i >= 8 && x < &8 { //check that E slice edges are in E slice
-                return false;
-            }
-        }
-        //if the above are true, the E slice edges are already in the proper state; no need to check
-        return true;
-    }
-
     //generate a random cube state
     pub fn scramble(&mut self) {
         let mut rng = rand::thread_rng();
@@ -193,5 +157,95 @@ impl Cube3x3 {
                 swaps += 1;
             }
         }
+    }
+
+    //convert to simplified state for g1 search
+    pub fn simplify(&self) -> Cube3x3Simple {
+        let mut new_edges = self.edges;
+        let mut new_corners = self.corners;
+        for e in &mut new_edges {
+            if [0, 1, 2, 3, 4, 5, 6, 7].contains(e) {
+                *e = 0;
+            } else if [8, 9, 10, 11].contains(e) {
+                *e = 1;
+            } else if [12, 13, 14, 15, 16, 17, 18, 19].contains(e) {
+                *e = 2;
+            } else {
+                *e = 3;
+            }
+        }
+        for c in &mut new_corners {
+            *c = *c / 8;
+        }
+        return Cube3x3Simple {
+            edges: new_edges,
+            corners: new_corners,
+        }
+    }
+}
+
+//struct for simplified state of 3x3 cube for g1 search
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+pub struct Cube3x3Simple {
+    edges: [u8; 12], //permutation of E slice edges and orientation of UD slice edges
+    corners: [u8; 8], //orientation of all corners (0=correct, 1=CW twist, 2=CCW twist)
+}
+
+//functions for making a cube, turning, and checking if it is solved
+impl Cube3x3Simple {
+    //returns a new, solved Cube3x3
+    pub fn new() -> Cube3x3Simple {
+        return Cube3x3Simple {
+            edges: [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            corners: [0, 0, 0, 0, 0, 0, 0, 0],
+        };
+    }
+
+    //applies a move and returns a new Cube3x3
+    pub fn turn(&self, m: Move) -> Cube3x3Simple {
+        let mut e = self.edges;
+        let mut c = self.corners;
+        match m {
+            Move::F => {e = [e[0], e[1], e[2], (e[8] + 2) % 4, e[4], (e[9] + 2) % 4, e[6], e[7], (e[5] + 2) % 4, (e[3] + 2) % 4, e[10], e[11]];
+                        c = [(c[4] + 1) % 3, c[1], c[2], (c[0] + 2) % 3, (c[5] + 2) % 3, (c[3] + 1) % 3, c[6], c[7]]},
+            Move::R => {e = [e[0], e[1], e[9], e[3], e[4], e[5], e[11], e[7], e[8], e[6], e[10], e[2]];
+                        c = [c[0], c[1], (c[3] + 2) % 3, (c[5] + 1) % 3, c[4], (c[6] + 2) % 3, (c[2] + 1) % 3, c[7]]},
+            Move::U => {e = [e[3], e[0], e[1], e[2], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11]];
+                        c = [c[3], c[0], c[1], c[2], c[4], c[5], c[6], c[7]]},
+            Move::B => {e = [e[0], (e[11] + 2) % 4, e[2], e[3], e[4], e[5], e[6], (e[10] + 2) % 4, e[8], e[9], (e[1] + 2) % 4, (e[7] + 2) % 4];
+                        c = [c[0], (c[2] + 2) % 3, (c[6] + 1) % 3, c[3], c[4], c[5], (c[7] + 2) % 3, (c[1] + 1) % 3]},
+            Move::L => {e = [e[10], e[1], e[2], e[3], e[8], e[5], e[6], e[7], e[0], e[9], e[4], e[11]];
+                        c = [(c[1] + 2) % 3, (c[7] + 1) % 3, c[2], c[3], (c[0] + 1) % 3, c[5], c[6], (c[4] + 2) % 3]},
+            Move::D => {e = [e[0], e[1], e[2], e[3], e[7], e[4], e[5], e[6], e[8], e[9], e[10], e[11]];
+                         c = [c[0], c[1], c[2], c[3], c[7], c[4], c[5], c[6]]},
+            Move::Fi => {e = [e[0], e[1], e[2], (e[9] + 2) % 4, e[4], (e[8] + 2) % 4, e[6], e[7], (e[3] + 2) % 4, (e[5] + 2) % 4, e[10], e[11]];
+                         c = [(c[3] + 1) % 3, c[1], c[2], (c[5] + 2) % 3, (c[0] + 2) % 3, (c[4] + 1) % 3, c[6], c[7]]},
+            Move::Ri => {e = [e[0], e[1], e[11], e[3], e[4], e[5], e[9], e[7], e[8], e[2], e[10], e[6]];
+                         c = [c[0], c[1], (c[6] + 2) % 3, (c[2] + 1) % 3, c[4], (c[3] + 2) % 3, (c[5] + 1) % 3, c[7]]},
+            Move::Ui => {e = [e[1], e[2], e[3], e[0], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11]];
+                         c = [c[1], c[2], c[3], c[0], c[4], c[5], c[6], c[7]]},
+            Move::Bi => {e = [e[0], (e[10] + 2) % 4, e[2], e[3], e[4], e[5], e[6], (e[11] + 2) % 4, e[8], e[9], (e[7] + 2) % 4, (e[1] + 2) % 4];
+                         c = [c[0], (c[7] + 2) % 3, (c[1] + 1) % 3, c[3], c[4], c[5], (c[2] + 2) % 3, (c[6] + 1) % 3]},
+            Move::Li => {e = [e[8], e[1], e[2], e[3], e[10], e[5], e[6], e[7], e[4], e[9], e[0], e[11]];
+                         c = [(c[4] + 2) % 3, (c[0] + 1) % 3, c[2], c[3], (c[7] + 1) % 3, c[5], c[6], (c[1] + 2) % 3]},
+            Move::Di => {e = [e[0], e[1], e[2], e[3], e[5], e[6], e[7], e[4], e[8], e[9], e[10], e[11]];
+                         c = [c[0], c[1], c[2], c[3], c[5], c[6], c[7], c[4]]},
+            Move::F2 => {e = [e[0], e[1], e[2], e[5], e[4], e[3], e[6], e[7], e[9], e[8], e[10], e[11]];
+                         c = [c[5], c[1], c[2], c[4], c[3], c[0], c[6], c[7]]},
+            Move::R2 => {e = [e[0], e[1], e[6], e[3], e[4], e[5], e[2], e[7], e[8], e[11], e[10], e[9]];
+                         c = [c[0], c[1], c[5], c[6], c[4], c[2], c[3], c[7]]},
+            Move::U2 => {e = [e[2], e[3], e[0], e[1], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11]];
+                         c = [c[2], c[3], c[0], c[1], c[4], c[5], c[6], c[7]]},
+            Move::B2 => {e = [e[0], e[7], e[2], e[3], e[4], e[5], e[6], e[1], e[8], e[9], e[11], e[10]];
+                         c = [c[0], c[6], c[7], c[3], c[4], c[5], c[1], c[2]]},
+            Move::L2 => {e = [e[4], e[1], e[2], e[3], e[0], e[5], e[6], e[7], e[10], e[9], e[8], e[11]];
+                         c = [c[7], c[4], c[2], c[3], c[1], c[5], c[6], c[0]]},
+            Move::D2 => {e = [e[0], e[1], e[2], e[3], e[6], e[7], e[4], e[5], e[8], e[9], e[10], e[11]];
+                         c = [c[0], c[1], c[2], c[3], c[6], c[7], c[4], c[5]]},
+        }
+        return Cube3x3Simple {
+            edges: e,
+            corners: c,
+        };
     }
 }
