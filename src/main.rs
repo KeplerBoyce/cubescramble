@@ -27,6 +27,7 @@ fn gen_scramble_3x3(lookup1: &HashMap<Cube3x3Simple, Vec<Move>>, lookup2: &HashM
         None => {moves1 = Vec::new()}
         Some(x) => {moves1 = x}
     }
+    println!("phase 1: {}", moves1.len());
     for m in &moves1 { //apply first phase solution once it is found
         cube3x3 = cube3x3.turn(*m);
     }
@@ -34,6 +35,7 @@ fn gen_scramble_3x3(lookup1: &HashMap<Cube3x3Simple, Vec<Move>>, lookup2: &HashM
         None => {moves2 = Vec::new()}
         Some(x) => {moves2 = x}
     }
+    println!("phase 2: {}", moves2.len());
 
     let mut scramble = moves1;
     scramble.extend(moves2.iter());
@@ -42,7 +44,9 @@ fn gen_scramble_3x3(lookup1: &HashMap<Cube3x3Simple, Vec<Move>>, lookup2: &HashM
 }
 
 fn main() {
+    println!("making lookup tables");
     let (lookup1, lookup2) = gen_lookups_3x3(5, 7);
+    println!("making scrambles");
     let mut scramble;
     for _ in 0..3 {
         scramble = gen_scramble_3x3(&lookup1, &lookup2, 7, 11);
