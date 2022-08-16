@@ -19,7 +19,7 @@ impl<Move: Clone> Append<Move> for Vec<Move> {
 }
 
 //DFS from scrambled state to g1 state
-pub fn search3x3_phase_1(cube3x3: Cube3x3, lookup: HashMap<Cube3x3Simple, Vec<Move>>, depth: usize) -> Option<Vec<Move>> {
+pub fn search3x3_phase_1(cube3x3: Cube3x3, lookup: &HashMap<Cube3x3Simple, Vec<Move>>, depth: usize) -> Option<Vec<Move>> {
     let mut deque: VecDeque<(Face, Face, Vec<Move>)> = VecDeque::from(vec!((Face::None, Face::None, Vec::new())));
 
     //run until stack is empty (all nodes within max depth have been checked)
@@ -84,7 +84,7 @@ pub fn search3x3_phase_1(cube3x3: Cube3x3, lookup: HashMap<Cube3x3Simple, Vec<Mo
 }
 
 //DFS from g1 to solved state
-pub fn search3x3_phase_2(cube3x3: Cube3x3, lookup: HashMap<Cube3x3, Vec<Move>>, depth: usize) -> Option<Vec<Move>> {
+pub fn search3x3_phase_2(cube3x3: Cube3x3, lookup: &HashMap<Cube3x3, Vec<Move>>, depth: usize) -> Option<Vec<Move>> {
     let mut deque: VecDeque<(Face, Face, Vec<Move>)> = VecDeque::from(vec!((Face::None, Face::None, Vec::new())));
 
     //run until stack is empty (all nodes within max depth have been checked)

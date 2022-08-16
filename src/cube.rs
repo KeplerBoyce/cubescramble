@@ -1,6 +1,7 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 use rand::Rng;
+use serde::{Serialize, Deserialize};
 
 //color possibilities of a sticker
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -15,7 +16,7 @@ pub enum Face {
 }
 
 //move possibilities
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum Move {
     F, //front CW
     R, //right CW
@@ -59,7 +60,7 @@ impl Move {
 }
 
 //struct for 3x3 cube
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Cube3x3 {
     edges: [u8; 12], //order: UL clockwise, DL clockwise, FL, FR, BL, BR, +12 if flipped
     corners: [u8; 8], //order: UFL clockwise, DFL clockwise, +8 for CW twist, +16 for CCW twist
@@ -185,7 +186,7 @@ impl Cube3x3 {
 }
 
 //struct for simplified state of 3x3 cube for g1 search
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Cube3x3Simple {
     edges: [u8; 12], //permutation of E slice edges and orientation of UD slice edges
     corners: [u8; 8], //orientation of all corners (0=correct, 1=CW twist, 2=CCW twist)
