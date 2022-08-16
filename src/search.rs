@@ -1,9 +1,5 @@
-#![allow(unused_must_use)]
-#![allow(dead_code)]
-use std::collections::VecDeque;
-use std::collections::HashMap;
+use std::collections::{VecDeque, HashMap, HashSet};
 use crate::cube::*;
-use crate::cube;
 use std::iter;
 
 trait Append<Move> { //helper for inline clone, push, and return
@@ -21,17 +17,24 @@ impl<Move: Clone> Append<Move> for Vec<Move> {
 //DFS from scrambled state to g1 state
 pub fn search3x3_phase_1(cube3x3: Cube3x3, lookup: &HashMap<Cube3x3Simple, Vec<Move>>, depth: usize) -> Option<Vec<Move>> {
     let mut deque: VecDeque<(Face, Face, Vec<Move>)> = VecDeque::from(vec!((Face::None, Face::None, Vec::new())));
+    let mut visited: HashSet<Cube3x3Simple> = HashSet::new();
+    let cube_3x3_simple = cube3x3.simplify();
 
     //run until stack is empty (all nodes within max depth have been checked)
     while deque.len() > 0 {
         let (last_face, next_last_face, moves) = deque.pop_front().unwrap(); //destructure current state
 
-        let mut test_cube = cube3x3;
+        let mut test_cube = cube_3x3_simple;
         for m in moves.clone() {
             test_cube = test_cube.turn(m);
         }
-        if lookup.contains_key(&test_cube.simplify()) {
-            let finish_moves = lookup.get(&test_cube.simplify());
+        if visited.contains(&test_cube) {
+            continue; //kill this branch if this node has already been reached
+        } else {
+            visited.insert(test_cube); //otherwise, insert this state to the hashset
+        }
+        if lookup.contains_key(&test_cube) {
+            let finish_moves = lookup.get(&test_cube);
             match finish_moves {
                 None => {}
                 Some(x) => {
@@ -86,6 +89,7 @@ pub fn search3x3_phase_1(cube3x3: Cube3x3, lookup: &HashMap<Cube3x3Simple, Vec<M
 //DFS from g1 to solved state
 pub fn search3x3_phase_2(cube3x3: Cube3x3, lookup: &HashMap<Cube3x3, Vec<Move>>, depth: usize) -> Option<Vec<Move>> {
     let mut deque: VecDeque<(Face, Face, Vec<Move>)> = VecDeque::from(vec!((Face::None, Face::None, Vec::new())));
+    let mut visited: HashSet<Cube3x3> = HashSet::new();
 
     //run until stack is empty (all nodes within max depth have been checked)
     while deque.len() > 0 {
@@ -94,6 +98,11 @@ pub fn search3x3_phase_2(cube3x3: Cube3x3, lookup: &HashMap<Cube3x3, Vec<Move>>,
         let mut test_cube = cube3x3;
         for m in moves.clone() {
             test_cube = test_cube.turn(m);
+        }
+        if visited.contains(&test_cube) {
+            continue; //kill this branch if this node has already been reached
+        } else {
+            visited.insert(test_cube); //otherwise, insert this state to the hashset
         }
         if lookup.contains_key(&test_cube) {
             let finish_moves = lookup.get(&test_cube);
@@ -151,7 +160,9 @@ pub fn gen_lookups_3x3_phase_1(depth: usize) -> HashMap<Cube3x3Simple, Vec<Move>
         for m in moves.clone() {
             cube3x3 = cube3x3.turn(m);
         }
-        if !hashmap.contains_key(&cube3x3) {
+        if hashmap.contains_key(&cube3x3) {
+            continue;
+        } else {
             hashmap.insert(cube3x3, moves.clone());
         }
         if moves.len() == depth {
@@ -204,7 +215,9 @@ pub fn gen_lookups_3x3_phase_2(depth: usize) -> HashMap<Cube3x3, Vec<Move>> {
         for m in moves.clone() {
             cube3x3 = cube3x3.turn(m);
         }
-        if !hashmap.contains_key(&cube3x3) {
+        if hashmap.contains_key(&cube3x3) {
+            continue;
+        } else {
             hashmap.insert(cube3x3, moves.clone());
         }
         if moves.len() == depth {
