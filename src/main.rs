@@ -49,7 +49,7 @@ fn main() {
     println!("making scrambles");
     let mut scramble;
     for _ in 0..3 {
-        scramble = gen_scramble_3x3(&lookup1, &lookup2, 7, 11);
+        scramble = gen_scramble_3x3(&lookup1, &lookup2, 6, 10);
         for m in &scramble {
             print!("{:?} ", m);
         }
